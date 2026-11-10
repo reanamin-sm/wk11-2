@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picture Talk & Write - 그림 상황 묘사하기 놀이</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --bg: #F4F7FB;
+            --card-bg: #FFFFFF;
+            --text: #2C3E50;
+            --shadow: 0 10px 25px rgba(0,0,0,0.08);
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', 'Jua', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border: 4px solid #E2E8F0;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #FFF9E6;
+            padding: 12px 24px;
+            border-radius: 18px;
+            border: 2px dashed #FFD166;
+        }
+
+        .progress-box {
+            font-size: 1.1rem;
+            color: #718096;
+            font-weight: 800;
+        }
+
+        .score-box {
+            font-size: 1.2rem;
+            color: #FF8800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Card Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .image-card {
+            background: #EDF2F7;
+            border-radius: 20px;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #CBD5E0;
+            position: relative;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .image-emoji {
+            font-size: 7rem;
+            line-height: 1;
+        }
+
+        .situation-tag {
+            margin-top: 12px;
+            background: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 1.15rem;
+            color: #4A5568;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Description & Scaffold Area */
+        .prompt-box {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .instruction {
+            font-size: 1.25rem;
+            color: var(--text);
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .hint-toggle-btn {
+            background: none;
+            border: none;
+            color: #718096;
+            font-size: 0.95rem;
+            text-decoration: underline;
+            cursor: pointer;
+            text-align: left;
+            width: fit-content;
+        }
+
+        .word-helpers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #F8FAFC;
+            padding: 14px;
+            border-radius: 14px;
+            border: 2px dashed #E2E8F0;
+        }
+
+        .word-tag {
+            background: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #4A5568;
+            border: 1px solid #CBD5E0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .word-tag:hover {
+            background: #E6FFFA;
+            border-color: var(--secondary);
+            color: #234E52;
+            transform: translateY(-2px);
+        }
+
+        /* Input Controls */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #F8FAFC;
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        textarea {
+            flex: 1;
+            height: 80px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 2px solid #CBD5E0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            outline: none;
+            resize: none;
+            transition: border-color 0.2s;
+            user-select: text;
+        }
+
+        textarea:focus {
+            border-color: var(--secondary);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+        }
+
+        .btn-mic {
+            background: var(--primary);
+            color: white;
+            min-width: 110px;
+        }
+
+        .btn-mic.recording {
+            background: #E53E3E;
+            animation: pulse 1s infinite;
+        }
+
+        .btn-submit {
+            background: var(--secondary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-next {
+            background: #4A5568;
+            color: white;
+            display: none;
+            width: 100%;
+        }
+
+        /* Feedback Toast */
+        .feedback {
+            display: none;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.5;
+        }
+
+        .feedback.success {
+            background: #C6F6D5;
+            color: #22543D;
+            display: block;
+        }
+
+        .feedback.hint {
+            background: #FEFCBF;
+            color: #744210;
+            display: block;
+        }
+
+        .sample-answers {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #9AE6B4;
+            font-size: 0.95rem;
+            color: #2B6CB0;
+            font-weight: 700;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Header -->
+    <div class="header">
+        <div class="progress-box">
+            문제 <span id="currentNum">1</span> / <span id="totalNum">10</span>
+        </div>
+        <div class="score-box">
+            <span>⭐ 완료한 설명: <strong id="score">0</strong>개</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Left: Image & Situation -->
+        <div class="image-card">
+            <div class="image-emoji" id="cardEmoji">🐱📦</div>
+            <div class="situation-tag" id="cardSituation">상자 안의 고양이</div>
+        </div>
+
+        <!-- Right: Prompt & Scaffold -->
+        <div class="prompt-box">
+            <div class="instruction">🖼️ 위 그림이나 상황을 영어로 <u>말하거나 써서</u> 설명해 보세요!</div>
+            
+            <button class="hint-toggle-btn" id="hintToggleBtn" onclick="toggleHint()">💡 단어 도우미 (숨기기/보기)</button>
+            
+            <div class="word-helpers" id="wordBank">
+                <!-- Word tags inserted via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Section -->
+    <div class="input-section">
+        <div class="input-wrapper">
+            <textarea id="userInput" placeholder="마이크를 누르고 말하거나, 여기에 영어로 써보세요!"></textarea>
+            <button class="btn btn-mic" id="micBtn" onclick="toggleSpeech()">
+                🎤 <span id="micText">말하기</span>
+            </button>
+        </div>
+        
+        <button class="btn btn-submit" id="submitBtn" onclick="checkDescription()">선생님께 제출하기 ✨</button>
+        <button class="btn btn-next" id="nextBtn" onclick="loadNextCard()">다음 그림 설명하기 ➔</button>
+
+        <!-- Feedback Banner -->
+        <div class="feedback" id="feedback"></div>
+    </div>
+</div>
+
+<script>
+    // 10가지 다양한 초등 맞춤형 상황 데이터 카드
+    const cards = [
+        {
+            emoji: "🐱📦",
+            situation: "상자 안에 들어있는 고양이",
+            keywords: ["cat", "box", "in", "inside"],
+            helpers: ["cat", "box", "in", "is", "The", "small"],
+            sampleAnswers: [
+                "The cat is in the box.",
+                "A cat inside a box.",
+                "It is a cat in the box."
+            ]
+        },
+        {
+            emoji: "👦🚴",
+            situation: "신나게 자전거를 타는 소년",
+            keywords: ["boy", "bike", "riding", "ride", "bicycle"],
+            helpers: ["boy", "bike", "riding", "is", "He", "fast"],
+            sampleAnswers: [
+                "The boy is riding a bike.",
+                "He rides a bicycle.",
+                "A boy on a red bike."
+            ]
+        },
+        {
+            emoji: "👧🍦",
+            situation: "달콤한 아이스크림을 먹는 소녀",
+            keywords: ["girl", "ice cream", "eating", "eat", "likes"],
+            helpers: ["girl", "ice cream", "eating", "likes", "She", "sweet"],
+            sampleAnswers: [
+                "She is eating ice cream.",
+                "The girl eats ice cream.",
+                "The girl likes ice cream."
+            ]
+        },
+        {
+            emoji: "🐶🎾",
+            situation: "공을 가지고 노는 강아지",
+            keywords: ["dog", "ball", "playing", "play", "has"],
+            helpers: ["dog", "ball", "playing", "with", "The", "happy"],
+            sampleAnswers: [
+                "The dog is playing with a ball.",
+                "A dog plays with a ball.",
+                "The dog has a ball."
+            ]
+        },
+        {
+            emoji: "😴🛌",
+            situation: "침대에서 쿨쿨 자는 아이",
+            keywords: ["sleeping", "sleep", "bed", "child", "baby", "boy"],
+            helpers: ["child", "sleeping", "bed", "in", "is", "quiet"],
+            sampleAnswers: [
+                "The child is sleeping in bed.",
+                "He is sleeping.",
+                "A baby in the bed."
+            ]
+        },
+        {
+            emoji: "🌧️☔",
+            situation: "비가 와서 우산을 쓴 상황",
+            keywords: ["rain", "raining", "umbrella", "rainy"],
+            helpers: ["rain", "raining", "umbrella", "has", "It is", "wet"],
+            sampleAnswers: [
+                "It is raining.",
+                "She has an umbrella.",
+                "It is a rainy day."
+            ]
+        },
+        {
+            emoji: "🐰🥕",
+            situation: "당근을 먹는 귀여운 토끼",
+            keywords: ["rabbit", "bunny", "carrot", "eating", "eat"],
+            helpers: ["rabbit", "carrot", "eating", "cute", "The", "orange"],
+            sampleAnswers: [
+                "The rabbit is eating a carrot.",
+                "A bunny eats a carrot.",
+                "It is a cute rabbit."
+            ]
+        },
+        {
+            emoji: "👨‍🍳🍕",
+            situation: "요리사가 피자를 만드는 중",
+            keywords: ["chef", "cook", "pizza", "making", "make"],
+            helpers: ["chef", "pizza", "making", "cook", "yummy", "The"],
+            sampleAnswers: [
+                "The chef is making pizza.",
+                "He cooks a pizza.",
+                "A cook makes yummy pizza."
+            ]
+        },
+        {
+            emoji: "🐵🍌",
+            situation: "나무 위에서 바나나를 가진 원숭이",
+            keywords: ["monkey", "banana", "tree", "has", "eating"],
+            helpers: ["monkey", "banana", "tree", "on", "has", "yellow"],
+            sampleAnswers: [
+                "The monkey has a banana.",
+                "A monkey on the tree.",
+                "The monkey is eating a banana."
+            ]
+        },
+        {
+            emoji: "🚀🌕",
+            situation: "우주선이 달을 향해 날아가는 모습",
+            keywords: ["rocket", "moon", "space", "flying", "fly"],
+            helpers: ["rocket", "moon", "flying", "to", "big", "in space"],
+            sampleAnswers: [
+                "The rocket is flying to the moon.",
+                "A rocket in space.",
+                "It flies to the moon."
+            ]
+        }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let isRecording = false;
+    let recognition = null;
+
+    // Web Speech API - 음성 인식 설정
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('userInput').value = transcript;
+            stopSpeech();
+            checkDescription();
+        };
+
+        recognition.onerror = () => {
+            stopSpeech();
+            showFeedback("음성을 잘 듣지 못했어요. 천천히 다시 말하거나 텍스트로 적어보세요! 🎤", "hint");
+        };
+
+        recognition.onend = () => {
+            stopSpeech();
+        };
+    }
+
+    function initApp() {
+        document.getElementById('totalNum').innerText = cards.length;
+        loadCard(currentIndex);
+    }
+
+    function toggleHint() {
+        const wb = document.getElementById('wordBank');
+        if (wb.style.display === 'none' || wb.style.display === '') {
+            wb.style.display = 'flex';
+        } else {
+            wb.style.display = 'none';
+        }
+    }
+
+    function loadCard(index) {
+        const card = cards[index];
+        document.getElementById('currentNum').innerText = index + 1;
+        document.getElementById('cardEmoji').innerText = card.emoji;
+        document.getElementById('cardSituation').innerText = card.situation;
+        document.getElementById('userInput').value = "";
+        
+        const fb = document.getElementById('feedback');
+        fb.style.display = "none";
+        fb.className = "feedback";
+        
+        document.getElementById('submitBtn').style.display = "block";
+        document.getElementById('nextBtn').style.display = "none";
+
+        // Word Bank 생성
+        const wordBankEl = document.getElementById('wordBank');
+        wordBankEl.innerHTML = "";
+        card.helpers.forEach(word => {
+            const tag = document.createElement('div');
+            tag.className = 'word-tag';
+            tag.innerText = word;
+            tag.onclick = () => insertWord(word);
+            wordBankEl.appendChild(tag);
+        });
+    }
+
+    function insertWord(word) {
+        const input = document.getElementById('userInput');
+        if (input.value.trim().length > 0) {
+            input.value += " " + word;
+        } else {
+            input.value = word;
+        }
+        playTTS(word);
+    }
+
+    // 학생 설명 제출 및 검증
+    function checkDescription() {
+        const userText = document.getElementById('userInput').value.trim().toLowerCase();
+        const card = cards[currentIndex];
+
+        if (!userText) {
+            showFeedback("영어로 그림을 설명해 보세요! (말하기 🎤 또는 글쓰기 ✍️)", "hint");
+            return;
+        }
+
+        // 키워드 매칭 계산
+        let matchedCount = 0;
+        card.keywords.forEach(kw => {
+            if (userText.includes(kw.toLowerCase())) {
+                matchedCount++;
+            }
+        });
+
+        // 2개 이상 핵심 단어 포함 또는 충분히 긴 문장이면 성공 판정
+        if (matchedCount >= 2 || (matchedCount >= 1 && userText.split(' ').length >= 3)) {
+            score += 1;
+            document.getElementById('score').innerText = score;
+            
+            // 제출 후에만 참고 예시 문장 공개
+            const samplesHtml = `<div class="sample-answers">💡 원어민 선생님의 다양한 표현 예시:<br>• ` + card.sampleAnswers.join('<br>• ') + `</div>`;
+            showFeedback(`👏 참 잘했어요! 멋지게 설명했네요!<br>${samplesHtml}`, "success");
+            
+            playTTS(userText);
+            document.getElementById('submitBtn').style.display = "none";
+            document.getElementById('nextBtn').style.display = "block";
+        } else {
+            showFeedback(`좋은 시도예요! 하지만 상황을 조금 더 구체적으로 설명해 볼까요? 💡<br>아래 단어 도우미를 클릭해서 문장으로 완성해 보세요!`, "hint");
+        }
+    }
+
+    function loadNextCard() {
+        currentIndex = (currentIndex + 1) % cards.length;
+        loadCard(currentIndex);
+    }
+
+    function toggleSpeech() {
+        if (!recognition) {
+            alert("이 브라우저는 음성 인식을 지원하지 않습니다. Chrome 브라우저를 이용해 주세요.");
+            return;
+        }
+
+        if (isRecording) {
+            stopSpeech();
+        } else {
+            startSpeech();
+        }
+    }
+
+    function startSpeech() {
+        isRecording = true;
+        document.getElementById('micBtn').classList.add('recording');
+        document.getElementById('micText').innerText = "듣는 중...";
+        recognition.start();
+    }
+
+    function stopSpeech() {
+        isRecording = false;
+        document.getElementById('micBtn').classList.remove('recording');
+        document.getElementById('micText').innerText = "말하기";
+        if (recognition) recognition.stop();
+    }
+
+    function playTTS(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function showFeedback(htmlContent, type) {
+        const fb = document.getElementById('feedback');
+        fb.innerHTML = htmlContent;
+        fb.className = `feedback ${type}`;
+    }
+
+    window.onload = initApp;
+</script>
+
+</body>
+</html>
